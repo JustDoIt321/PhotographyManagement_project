@@ -22,3 +22,20 @@ create policy "app_state_insert_own" on public.app_state
 drop policy if exists "app_state_update_own" on public.app_state;
 create policy "app_state_update_own" on public.app_state
   for update using (auth.uid() = user_id);
+
+-- 登录标识解析：把「邮箱 / 用户名 / 手机号」统一解析回邮箱，供密码登录使用
+create or replace function public.resolve_identifier(identifier text)
+returns text
+language sql
+security definer
+set search_path = public
+as $$
+  select email
+  from auth.users
+  where lower(email) = lower(identifier)
+     or lower(coalesce(raw_user_meta_data->>'username','')) = lower(identifier)
+     or coalesce(raw_user_meta_data->>'phone','') = identifier
+  limit 1;
+$$;
+
+grant execute on function public.resolve_identifier(text) to anon, authenticated;
