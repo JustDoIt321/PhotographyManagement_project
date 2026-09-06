@@ -11,7 +11,9 @@
   --t-ling:#E8A44F; --t-hun:#C4535E; --t-xie:#5E8FC9; --t-shang:#4E9E81; --t-fam:#9A7FC0;
   --radius:12px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
+@layer base {
+  *{box-sizing:border-box;margin:0;padding:0;}
+}
 html,body{height:100%;}
 body{
   font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','WenQuanYi Micro Hei',system-ui,sans-serif;

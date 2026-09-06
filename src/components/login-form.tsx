@@ -68,19 +68,17 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[13px] font-medium text-zinc-600">{label}</label>
-      <div className="relative">
-        <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2">
-          {icon}
-        </span>
-        {children}
-      </div>
+      <label className="mb-1.5 flex items-center gap-1.5 text-[13px] font-medium text-zinc-600">
+        {label}
+        {icon}
+      </label>
+      <div className="relative">{children}</div>
     </div>
   );
 }
 
 const inputBase =
-  "w-full rounded-xl border border-zinc-200 bg-zinc-50 py-2.5 pl-11 pr-4 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-[#FF7A45] focus:bg-white focus:ring-2 focus:ring-[#FF7A45]/15";
+  "w-full rounded-xl border border-zinc-200 bg-zinc-50 py-3 pl-4 pr-4 text-sm leading-6 text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-[#FF7A45] focus:bg-white focus:ring-2 focus:ring-[#FF7A45]/15";
 
 function translateError(m?: string): string {
   const s = m || "";
@@ -226,8 +224,8 @@ export default function LoginForm() {
         style={{ background: "#FF8A4C" }}
       />
 
-      <div className="relative w-full max-w-md">
-        <div className="rounded-3xl bg-white/90 p-8 shadow-[0_24px_60px_-15px_rgba(200,90,40,0.35)] backdrop-blur">
+      <div className="relative w-full max-w-lg">
+        <div className="rounded-3xl bg-white/90 p-10 shadow-[0_24px_60px_-15px_rgba(200,90,40,0.35)] backdrop-blur">
           {/* 品牌 */}
           <div className="mb-8 flex items-center gap-3">
             <div
@@ -262,11 +260,11 @@ export default function LoginForm() {
           </div>
 
           {mode === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <Field label="邮箱 / 用户名 / 手机号" icon={<UserIcon />}>
+            <form onSubmit={handleLogin} className="space-y-5">
+              <Field label="账号" icon={<UserIcon />}>
                 <input
                   className={inputBase}
-                  placeholder="支持邮箱、用户名、手机号登录"
+                  placeholder="邮箱 / 用户名 / 手机号"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   autoComplete="username"
@@ -285,7 +283,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowLoginPwd((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-zinc-400 hover:text-zinc-600"
                 >
                   {showLoginPwd ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
@@ -318,7 +316,7 @@ export default function LoginForm() {
               </p>
             </form>
           ) : (
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleRegister} className="space-y-5">
               <Field label="邮箱（必填）" icon={<MailIcon />}>
                 <input
                   className={inputBase}
@@ -330,7 +328,7 @@ export default function LoginForm() {
                   autoFocus
                 />
               </Field>
-              <Field label="用户名（选填，可用于登录）" icon={<UserIcon />}>
+              <Field label="用户名（选填）" icon={<UserIcon />}>
                 <input
                   className={inputBase}
                   placeholder="例如：小林摄影"
@@ -338,7 +336,7 @@ export default function LoginForm() {
                   onChange={(e) => setUsername(e.target.value)}
                 />
               </Field>
-              <Field label="手机号（选填，可用于登录）" icon={<PhoneIcon />}>
+              <Field label="手机号（选填）" icon={<PhoneIcon />}>
                 <input
                   className={inputBase}
                   type="tel"
@@ -360,7 +358,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowRegPwd((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                  className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-zinc-400 hover:text-zinc-600"
                 >
                   {showRegPwd ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
