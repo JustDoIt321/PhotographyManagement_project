@@ -92,6 +92,23 @@ function translateError(m?: string): string {
   return s || "操作失败，请稍后重试";
 }
 
+// 给请求加超时，避免浏览器直连 Supabase 时网络卡死导致按钮一直"登录中"
+function withTimeout<T>(p: PromiseLike<T>, ms = 15000): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error("__TIMEOUT__")), ms);
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      }
+    );
+  });
+}
+
 export default function LoginForm() {
   const [mode, setMode] = useState<Mode>("login");
   // 登录字段
@@ -132,9 +149,9 @@ export default function LoginForm() {
       let loginEmail = id;
       // 非邮箱（用户名 / 手机号）→ 先用后端函数解析出邮箱
       if (!id.includes("@")) {
-        const { data, error: rpcErr } = await supabase.rpc("resolve_identifier", {
-          identifier: id,
-        });
+        const { data, error: rpcErr } = await withTimeout(
+          supabase.rpc("resolve_identifier", { identifier: id })
+        );
         if (rpcErr || !data) {
           setError("账号或密码错误");
           setLoading(false);
@@ -142,18 +159,24 @@ export default function LoginForm() {
         }
         loginEmail = data as string;
       }
-      const { error: err } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword,
-      });
+      const { error: err } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email: loginEmail,
+          password: loginPassword,
+        })
+      );
       if (err) {
         setError(translateError(err.message));
         setLoading(false);
         return;
       }
       window.location.replace("/");
-    } catch {
-      setError("登录失败，请稍后重试");
+    } catch (e) {
+      setError(
+        e instanceof Error && e.message === "__TIMEOUT__"
+          ? "连接超时，请检查网络后重试"
+          : "登录失败，请稍后重试"
+      );
       setLoading(false);
     }
   }
@@ -177,17 +200,19 @@ export default function LoginForm() {
     setLoading(true);
     const supabase = createClient();
     try {
-      const { data, error: err } = await supabase.auth.signUp({
-        email: em,
-        password: regPassword,
-        options: {
-          data: {
-            username: username.trim(),
-            phone: phone.trim(),
-            name: username.trim() || em.split("@")[0],
+      const { data, error: err } = await withTimeout(
+        supabase.auth.signUp({
+          email: em,
+          password: regPassword,
+          options: {
+            data: {
+              username: username.trim(),
+              phone: phone.trim(),
+              name: username.trim() || em.split("@")[0],
+            },
           },
-        },
-      });
+        })
+      );
       if (err) {
         setError(translateError(err.message));
         setLoading(false);
@@ -200,8 +225,12 @@ export default function LoginForm() {
       setError("注册成功，请查收邮箱完成验证后再登录");
       setMode("login");
       setLoading(false);
-    } catch {
-      setError("注册失败，请稍后重试");
+    } catch (e) {
+      setError(
+        e instanceof Error && e.message === "__TIMEOUT__"
+          ? "连接超时，请检查网络后重试"
+          : "注册失败，请稍后重试"
+      );
       setLoading(false);
     }
   }
