@@ -38,17 +38,17 @@ function ProjectView({ p }: { p: Project }) {
     <>
       <div className="back-row">
         <button className="btn-ghost" onClick={back}>
-          <IconBack /> 返回
+          <IconBack size={16} /> 返回
         </button>
         <div className="panel-title" style={{ marginBottom: 0 }}>
           项目详情
         </div>
         <div className="grow" />
         <button className="btn-danger-ghost" onClick={openDeleteConfirm}>
-          <IconTrash /> 删除项目
+          <IconTrash size={16} /> 删除项目
         </button>
         <button className="btn-ghost" onClick={() => setEditing(true)}>
-          <IconEdit /> 编辑项目
+          <IconEdit size={16} /> 编辑项目
         </button>
       </div>
 

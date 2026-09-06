@@ -70,7 +70,12 @@ export default function Dashboard() {
           </div>
           <div className="dk-note">元 · 已支出</div>
         </div>
-        <div className="dash-kpi">
+        <div
+          className="dash-kpi"
+          style={{ cursor: "pointer" }}
+          title="查看提醒中心"
+          onClick={() => navigate("reminders")}
+        >
           <div className="dk-label">待处理提醒</div>
           <div className="dk-num" style={{ color: "var(--danger)" }}>
             {reminders.length}
