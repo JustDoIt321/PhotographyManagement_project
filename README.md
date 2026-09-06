@@ -5,7 +5,7 @@
 ## 技术栈
 
 - **框架**：Next.js 16（App Router）+ TypeScript + Tailwind CSS v4
-- **认证**：Supabase Auth（邮箱 + 密码）
+- **认证**：Supabase Auth（邮箱 / 用户名 / 手机号 + 密码）
 - **数据**：Supabase 单表 `app_state`（JSON 快照）+ RLS 按用户隔离
 - **鉴权路由**：`src/proxy.ts`（未登录跳 `/login`）
 - **客户端云同步**：`src/lib/store.tsx`（localStorage 缓存 + 600ms 防抖 upsert）
@@ -19,14 +19,14 @@ src/
   lib/            # types、helpers、store（状态层）、supabase 客户端
   proxy.ts        # 鉴权中间件（Next.js 16 的 proxy 约定）
 supabase/
-  schema.sql      # app_state 建表 + RLS 策略
+  schema.sql      # app_state 建表 + RLS 策略 + resolve_identifier 登录解析函数
 ```
 
 ## 本地开发
 
 ```bash
 npm install
-cp .env.local.example .env.local   # 填入真实的 Supabase URL / anon key
+cp .env.local.example .env.local   # 填入真实的 Supabase URL / publishable key
 npm run dev
 ```
 
@@ -38,13 +38,14 @@ npm run dev
 
 - `app_state` 表（`user_id` 主键 + `data` JSONB + `updated_at`）
 - 开启 RLS，并建立 select / insert / update 三条「仅本人」策略
+- `resolve_identifier` 函数（把「邮箱 / 用户名 / 手机号」解析回邮箱，用于登录）
 
 ## 环境变量
 
 | 变量 | 说明 |
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 项目 URL（自托管或云端） |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon public key（可公开，数据由 RLS 保护） |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | publishable key（可公开，数据由 RLS 保护），新版 `sb_publishable_...` 开头 |
 
 > 本地开发用 `.env.local`；线上部署时在平台（Zeabur）的项目环境变量里配置同名的两个变量。
 
@@ -54,7 +55,7 @@ npm run dev
 2. 在 Zeabur 新建项目 → 选择该 GitHub 仓库；Zeabur 会通过 nixpacks 自动识别 Next.js（构建 `npm run build`，启动 `npm run start`）。
 3. 在项目「Variables」中添加两个环境变量：
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 4. 部署完成后，把 Zeabur 分配的域名填到 Supabase → Authentication → URL Configuration 的 Site URL（及 Redirect URLs），用于邮箱验证与登录回调。
 5. 如需自托管 Supabase：可在 Zeabur 使用 Supabase 模板，或参照官方文档自建后，把 `NEXT_PUBLIC_SUPABASE_URL` 指向自托管地址即可，表结构同样执行 `supabase/schema.sql`。
 
